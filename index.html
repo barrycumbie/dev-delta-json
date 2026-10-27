@@ -6,10 +6,24 @@
     <title>lab|delta</title>
   </head>
   <body>
-    <select id="favorite">
-			<option>select favorite!</option>
+    <form id="profileForm">
+      <label for="name">name</label>
+      <input id="nameInput" />
+      <br />
 
-		</select>
+      <label for="favorite">favorite</label>
+      <select id="favoriteInput">
+        <option>select favorite!</option>
+      </select>
+
+      <br />
+      <label for="comment">comments</label>
+      <textarea id="commentInput"></textarea>
+
+			<br /> 
+
+			<button id="btnCreateProfile">create my profile</button>
+    </form>
 
     <script src="assets/js/script.js"></script>
   </body>

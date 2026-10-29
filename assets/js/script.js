@@ -1,10 +1,13 @@
 console.log("loading script file?");
 
+const API_URL = 'https://dog.ceo/api/breeds/image/random';
+const dogPicUrl = ''; 
+
 document
   .querySelector("#btnCreateProfile")
   .addEventListener("click", createUserProfile);
 
-function createUserProfile(e) {
+async function createUserProfile(e) {
   e.preventDefault();
   // document.querySelector('#profileForm');
 
@@ -14,21 +17,39 @@ function createUserProfile(e) {
   const favoriteInput = document.querySelector("#favoriteInput").value;
   const commentInput = document.querySelector("#commentInput").value;
 
-    const dogPicValue = fetch("https://dog.ceo/api/breeds/image/random ");
-    console.log('dogPicValue ', dogPicValue);
-
-    //dogPicValue.message 
+  const dogPicUrl = await getApiData(); 
 
 
   const userData = {
     name: nameInput,
     favorite: favoriteInput,
     comment: commentInput,
-    dogpic: dogPicValue 
+    dogpic: dogPicUrl.message
   };
 
   console.log('userData object ', userData);
+
+
+  const json = JSON.stringify(userData);
+
+  sessionStorage.setItem("userData", json);
 }
+
+async function getApiData() {
+
+  const response = await fetch(API_URL);
+
+  if (!response.ok) {
+    throw new Error("API request failed");
+  }
+
+  const data = await response.json();
+
+  console.log('getApiData: ', data.message);
+
+  return data; 
+}
+
 
 async function loadOptions() {
   const response = await fetch("assets/data/data.json");
@@ -50,3 +71,17 @@ async function loadOptions() {
   });
 }
 loadOptions();
+
+
+document.querySelector("#btnLoadProfile")
+  .addEventListener('click', loadProfile); 
+
+function loadProfile() {
+  const saved = sessionStorage.getItem("userData");
+  const userData = JSON.parse(saved);
+  console.log('session saved user data: ', userData);
+  //document.querySelector("#imgTest").src = userData.docpic; 
+
+
+}
+

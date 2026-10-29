@@ -3,28 +3,182 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>lab|delta</title>
+    <meta
+      name="description"
+      content="Build a profile from your input, local JSON, and a public API."
+    />
+    <title>lab|delta — Fetch and session storage</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
   </head>
   <body>
-    <form id="profileForm">
-      <label for="name">name</label>
-      <input id="nameInput" />
-      <br />
+    <main class="page">
+      <header class="page-header">
+        <p class="eyebrow">CIS 376 · Fetch + User Data + Session Storage</p>
+        <h1>Fetch, combine, and save data</h1>
+        <p class="intro">
+          Work through each example on its own. Every step has a separate
+          button and output; the final challenge combines the ideas.
+        </p>
+      </header>
 
-      <label for="favorite">favorite</label>
-      <select id="favoriteInput">
-        <option>select favorite!</option>
-      </select>
+      <section class="panel lesson" aria-labelledby="step1Title">
+        <p class="step-number">STEP 1</p>
+        <h2 id="step1Title">Fetch local JSON</h2>
+        <p>
+          Click to request the local file, parse its JSON, and turn each item
+          into a visible list entry. It also fills the favorite menu in the
+          final challenge.
+        </p>
+        <button id="btnLoadOptions" type="button">Load local favorites</button>
+        <p id="optionsStatus" class="status" role="status" aria-live="polite"></p>
+        <ul id="optionsList" class="options-list"></ul>
+        <details>
+          <summary>Why these lines?</summary>
+          <pre><code>// fetch() asks the browser for the local JSON file.
+const response = await fetch("assets/data/data.json");
 
-      <br />
-      <label for="comment">comments</label>
-      <textarea id="commentInput"></textarea>
+// HTTP errors do not automatically reject fetch(), so check response.ok.
+if (!response.ok) throw new Error("Could not load local JSON");
 
-			<br /> 
+// .json() reads the response body and converts JSON text into JS values.
+const choices = await response.json();</code></pre>
+        </details>
+      </section>
 
-			<button id="btnCreateProfile">create my profile</button>
-    </form>
+      <section class="panel lesson" aria-labelledby="step2Title">
+        <p class="step-number">STEP 2</p>
+        <h2 id="step2Title">Make an object from user input</h2>
+        <p>
+          The browser gives input values to JavaScript as strings. This example
+          chooses an object shape to represent those values.
+        </p>
+        <form id="userDataForm">
+          <label for="userNameInput">Name</label>
+          <input id="userNameInput" name="name" autocomplete="name" required />
+          <label for="userCommentInput">Comment</label>
+          <textarea id="userCommentInput" name="comment" rows="3"></textarea>
+          <button type="submit">Build the user object</button>
+        </form>
+        <pre id="userDataOutput" class="output" aria-live="polite">Your object will appear here.</pre>
+        <details>
+          <summary>Why prevent the default submit?</summary>
+          <pre><code>form.addEventListener("submit", (event) => {
+  // Keep the browser from reloading/navigating away from this page.
+  event.preventDefault();
 
-    <script src="assets/js/script.js"></script>
+  // .value reads the current text from each input element.
+  const userData = {
+    name: nameInput.value,
+    comment: commentInput.value
+  };
+});</code></pre>
+        </details>
+      </section>
+
+      <section class="panel lesson" aria-labelledby="step3Title">
+        <p class="step-number">STEP 3</p>
+        <h2 id="step3Title">Store and retrieve a small object</h2>
+        <p>
+          This example has its own sample object and storage key, so it works
+          without running Step 2 or the final challenge.
+        </p>
+        <div class="button-row">
+          <button id="btnSaveUserData" type="button">Save sample object</button>
+          <button id="btnReadUserData" class="button-secondary" type="button">
+            Read saved object
+          </button>
+        </div>
+        <p id="storageStatus" class="status" role="status" aria-live="polite"></p>
+        <pre id="storageOutput" class="output" aria-live="polite">Stored data will appear here.</pre>
+        <details>
+          <summary>Why stringify and parse?</summary>
+          <pre><code>// Storage can keep strings, not JavaScript objects.
+const sampleObject = { name: "Garfield", favorite: "lasagna" };
+const jsonText = JSON.stringify(sampleObject);
+sessionStorage.setItem("teachingUserData", jsonText);
+
+// getItem() returns text. JSON.parse() converts that text to an object.
+const savedText = sessionStorage.getItem("teachingUserData");
+const savedObject = JSON.parse(savedText);</code></pre>
+        </details>
+      </section>
+
+      <section class="panel lesson" aria-labelledby="step4Title">
+        <p class="step-number">STEP 4</p>
+        <h2 id="step4Title">Fetch data from a public API</h2>
+        <p>
+          This request is independent of the local JSON and user form examples.
+          It displays the image URL returned in the API's <code>message</code>
+          property.
+        </p>
+        <button id="btnLoadDog" type="button">Get a random dog</button>
+        <p id="dogStatus" class="status" role="status" aria-live="polite"></p>
+        <div id="dogOutput" class="api-output"></div>
+        <details>
+          <summary>Why inspect the API response?</summary>
+          <pre><code>const response = await fetch(apiUrl);
+if (!response.ok) throw new Error("API request failed");
+const data = await response.json();
+
+// Dog CEO returns an object; message contains the image URL.
+const imageUrl = data.message;</code></pre>
+        </details>
+      </section>
+
+      <section
+        class="panel lesson challenge"
+        aria-labelledby="challengeTitle"
+      >
+        <p class="step-number">FINAL CHALLENGE</p>
+        <h2 id="challengeTitle">Combine all three sources</h2>
+        <p>
+          This separate form gathers user input, a favorite from local JSON, and
+          a dog image from the external API. It stores one profile, reads it
+          back, and renders from the saved copy.
+        </p>
+        <form id="profileForm">
+          <label for="nameInput">Your name</label>
+          <input id="nameInput" name="name" autocomplete="name" required />
+          <label for="favoriteInput">Favorite from local JSON</label>
+          <select id="favoriteInput" name="favorite" required disabled>
+            <option value="">Load local favorites in Step 1 first</option>
+          </select>
+          <label for="commentInput">A comment</label>
+          <textarea id="commentInput" name="comment" rows="3"></textarea>
+          <button id="btnCreateProfile" type="submit">
+            Build and save combined profile
+          </button>
+        </form>
+        <p id="profileStatus" class="status" role="status" aria-live="polite"></p>
+        <div class="button-row">
+          <button id="btnClearSession" class="button-secondary" type="button">
+            Clear combined profile
+          </button>
+        </div>
+        <section
+          id="profileSection"
+          class="profile-panel"
+          aria-labelledby="profileTitle"
+          hidden
+        >
+          <h3 id="profileTitle">Profile rendered from session storage</h3>
+          <div id="profileContent" class="profile-content"></div>
+        </section>
+        <details>
+          <summary>Where does the combined state come together?</summary>
+          <pre><code>const sessionProfile = {
+  user: { name, comment },       // from form inputs
+  selection: favorite,           // from local JSON
+  api: { imageUrl: dog.message } // from the public API
+};
+
+sessionStorage.setItem("sessionProfile", JSON.stringify(sessionProfile));
+const savedProfile = JSON.parse(sessionStorage.getItem("sessionProfile"));
+renderProfile(savedProfile);</code></pre>
+        </details>
+      </section>
+    </main>
+
+    <script src="assets/js/script.js" defer></script>
   </body>
 </html>
